@@ -10,9 +10,11 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
+#include <sys/shm.h>           /* For shmget/shmat/shmctl/shmdt */
 #include <sys/endian.h>        /* FreeBSD's endian.h */
+#include <arpa/inet.h>         /* For inet_addr, htonl, etc. */
 #include <net/if.h>
-#include <net/ethernet.h>      /* struct ether_header */
+#include <net/ethernet.h>      /* struct ether_header, replaces net/if_arp.h */
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <netinet/udp.h>
