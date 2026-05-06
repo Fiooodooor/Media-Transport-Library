@@ -5,6 +5,7 @@
 #if defined(__FreeBSD__) && !defined(MTL_HAS_NUMA)
 
 #include <stdlib.h>
+
 #include "mt_log.h"
 
 /* NUMA stub implementation for FreeBSD when libnuma is not available */

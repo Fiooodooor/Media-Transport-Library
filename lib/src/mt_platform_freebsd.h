@@ -7,21 +7,21 @@
 
 #ifdef __FreeBSD__
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <sys/shm.h>           /* For shmget/shmat/shmctl/shmdt */
-#include <sys/endian.h>        /* FreeBSD's endian.h */
-#include <arpa/inet.h>         /* For inet_addr, htonl, etc. */
+#include <arpa/inet.h>    /* For inet_addr, htonl, etc. */
+#include <ifaddrs.h>      /* For getifaddrs */
+#include <net/ethernet.h> /* struct ether_header, replaces net/if_arp.h */
 #include <net/if.h>
-#include <net/if_dl.h>         /* For sockaddr_dl, LLADDR */
-#include <net/ethernet.h>      /* struct ether_header, replaces net/if_arp.h */
+#include <net/if_dl.h> /* For sockaddr_dl, LLADDR */
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <netinet/udp.h>
-#include <ifaddrs.h>           /* For getifaddrs */
-#include <pthread.h>
 #include <poll.h>
+#include <pthread.h>
+#include <sys/endian.h> /* FreeBSD's endian.h */
+#include <sys/ioctl.h>
+#include <sys/shm.h> /* For shmget/shmat/shmctl/shmdt */
+#include <sys/socket.h>
+#include <sys/types.h>
 #include <time.h>
 
 /* FreeBSD uses CLOCK_MONOTONIC_FAST for low-overhead monotonic time */

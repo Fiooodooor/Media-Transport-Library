@@ -24,7 +24,7 @@
 #ifdef __FreeBSD__
 /* FreeBSD doesn't have SO_BINDTODEVICE - use routing or skip binding */
 #ifndef SO_BINDTODEVICE
-#define SO_BINDTODEVICE 0  /* Dummy value, will be handled below */
+#define SO_BINDTODEVICE 0 /* Dummy value, will be handled below */
 #endif
 #endif
 
