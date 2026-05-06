@@ -117,6 +117,37 @@ int mt_socket_get_if_gateway(const char* if_name, uint8_t gateway[MTL_IP_ADDR_LE
 }
 
 int mt_socket_get_if_mac(const char* if_name, struct rte_ether_addr* ea) {
+#ifdef __FreeBSD__
+  /* FreeBSD: Use getifaddrs() to get MAC address */
+  struct ifaddrs *ifap, *ifa;
+  struct sockaddr_dl* sdl;
+  int ret = -ENOENT;
+
+  if (getifaddrs(&ifap) != 0) {
+    err("%s, getifaddrs fail for if %s\n", __func__, if_name);
+    return -errno;
+  }
+
+  for (ifa = ifap; ifa != NULL; ifa = ifa->ifa_next) {
+    if (ifa->ifa_addr == NULL) continue;
+    if (ifa->ifa_addr->sa_family != AF_LINK) continue;
+    if (strcmp(ifa->ifa_name, if_name) != 0) continue;
+
+    sdl = (struct sockaddr_dl*)ifa->ifa_addr;
+    if (sdl->sdl_alen == RTE_ETHER_ADDR_LEN) {
+      memcpy(ea->addr_bytes, LLADDR(sdl), RTE_ETHER_ADDR_LEN);
+      ret = 0;
+      break;
+    }
+  }
+
+  freeifaddrs(ifap);
+  if (ret < 0) {
+    err("%s, interface %s not found or no MAC address\n", __func__, if_name);
+  }
+  return ret;
+#else
+  /* Linux: Use SIOCGIFHWADDR ioctl */
   int sock, ret;
   struct ifreq ifr;
 
@@ -138,6 +169,7 @@ int mt_socket_get_if_mac(const char* if_name, struct rte_ether_addr* ea) {
 
   close(sock);
   return 0;
+#endif
 }
 
 int mt_socket_set_if_up(const char* if_name) {

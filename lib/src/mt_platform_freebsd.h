@@ -14,10 +14,12 @@
 #include <sys/endian.h>        /* FreeBSD's endian.h */
 #include <arpa/inet.h>         /* For inet_addr, htonl, etc. */
 #include <net/if.h>
+#include <net/if_dl.h>         /* For sockaddr_dl, LLADDR */
 #include <net/ethernet.h>      /* struct ether_header, replaces net/if_arp.h */
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <netinet/udp.h>
+#include <ifaddrs.h>           /* For getifaddrs */
 #include <pthread.h>
 #include <poll.h>
 #include <time.h>
