@@ -42,7 +42,7 @@ jobs:
 
   run-gtest-tests:
     needs: gtest-check-for-changes
-    if: ${{ github.repository == 'OpenVisualCloud/Media-Transport-Library' }}
+    if: ${{ github.repository == 'Fiooodooor/Media-Transport-Library' }}
     strategy:
       matrix:
         nic:

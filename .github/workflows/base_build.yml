@@ -52,7 +52,7 @@ jobs:
 
   ubuntu-build:
     needs: changes
-    if: ${{ github.repository == 'OpenVisualCloud/Media-Transport-Library' }}
+    if: ${{ github.repository == 'Fiooodooor/Media-Transport-Library' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 60
     steps:
@@ -76,7 +76,7 @@ jobs:
 
   ubuntu-ebpf-xdp-build:
     needs: changes
-    if: ${{ github.repository == 'OpenVisualCloud/Media-Transport-Library' }}
+    if: ${{ github.repository == 'Fiooodooor/Media-Transport-Library' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 60
     steps:

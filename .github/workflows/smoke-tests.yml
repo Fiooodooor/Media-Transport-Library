@@ -44,7 +44,7 @@ jobs:
     needs:
       - smoke-check-for-changes
       - build
-    if: ${{ github.repository == 'OpenVisualCloud/Media-Transport-Library' }}
+    if: ${{ github.repository == 'Fiooodooor/Media-Transport-Library' }}
     concurrency:
       group: smoke-${{ github.workflow }}-${{ github.ref }}-${{ matrix.nic }}
       cancel-in-progress: true
