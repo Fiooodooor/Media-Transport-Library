@@ -33,6 +33,15 @@
 #include <sys/cpuset.h>
 #include <sys/param.h>
 
+/*
+ * Compatibility: Map Linux cpu_set_t to FreeBSD cpuset_t
+ * FreeBSD uses cpuset_t while Linux uses cpu_set_t, but both provide
+ * CPU_ZERO, CPU_SET, CPU_CLR, CPU_ISSET macros with the same semantics.
+ */
+#ifndef cpu_set_t
+typedef cpuset_t cpu_set_t;
+#endif
+
 /* FreeBSD uses pthread_cond_timedwait with CLOCK_REALTIME by default */
 #define MT_THREAD_TIMEDWAIT_CLOCK_ID CLOCK_REALTIME
 
