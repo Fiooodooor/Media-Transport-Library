@@ -18,7 +18,6 @@ if not is_windows
     libnuma_dep = cc.find_library('numa', required : false)
     if not libnuma_dep.found()
       message('libnuma not found on FreeBSD, using single-socket fallback')
-      libnuma_dep = []
     else
       add_global_arguments('-DMTL_HAS_NUMA', language : 'c')
     endif
