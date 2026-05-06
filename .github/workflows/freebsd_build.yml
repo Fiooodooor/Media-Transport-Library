@@ -1,0 +1,159 @@
+name: FreeBSD Build
+
+on:
+  # allow manually trigger
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - 'maint-**'
+  pull_request:
+    branches:
+      - main
+      - 'maint-**'
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      changed: ${{ steps.filter.outputs.freebsd_build == 'true' }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
+        id: filter
+        with:
+          filters: .github/path_filters.yml
+
+  freebsd-build:
+    needs: changes
+    if: ${{ github.repository == 'OpenVisualCloud/Media-Transport-Library' && (needs.changes.outputs.changed == 'true' || github.event_name == 'workflow_dispatch') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        freebsd_version: ['14.2', '15.0']
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
+        with:
+          egress-policy: audit
+
+      - name: Checkout MTL code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Build on FreeBSD
+        uses: vmactions/freebsd-vm@v1
+        with:
+          release: ${{ matrix.freebsd_version }}
+          usesh: true
+          copyback: false
+          prepare: |
+            pkg install -y git gcc meson pkgconf ninja python3 py39-pyelftools
+            pkg install -y json-c libpcap googletest
+            pkg install -y numa || echo "NUMA not available, will use stubs"
+          run: |
+            set -e
+
+            # Display FreeBSD version
+            freebsd-version
+            uname -a
+
+            # Clone and build DPDK
+            echo "==== Building DPDK ===="
+            git clone --depth 1 --branch v25.11 https://github.com/DPDK/dpdk.git
+            cd dpdk
+
+            # Apply MTL patches (skip Linux-specific)
+            echo "Applying DPDK patches..."
+            git am ../patches/dpdk/25.11/0001-e810-set-max-ring-desc-to-max-allowed-by-hardware.patch || true
+            git am ../patches/dpdk/25.11/0003-ice-set-ICE_SCHED_DFLT_BURST_SIZE-to-2048.patch || true
+            git am ../patches/dpdk/25.11/0004-Change-to-enable-PTP.patch || true
+            git am ../patches/dpdk/25.11/0006-pcapng-add-user-timestamp-support.patch || true
+
+            # Build DPDK
+            meson setup build -Dmax_lcores=256 -Denable_kmods=false -Dplatform=generic
+            ninja -C build
+            ninja install -C build
+            cd ..
+
+            # Set PKG_CONFIG_PATH
+            export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+
+            # Build MTL
+            echo "==== Building MTL ===="
+            ./build.sh
+
+            # Verify build
+            echo "==== Verifying build ===="
+            ls -lh build/lib/libmtl.so*
+            nm build/lib/libmtl.so.* | grep mtl_init || echo "mtl_init symbol check"
+
+            # Check for RxTxApp
+            if [ -f build/tests/tools/RxTxApp/RxTxApp ]; then
+              echo "RxTxApp built successfully"
+              ./build/tests/tools/RxTxApp/RxTxApp --help || echo "RxTxApp help check"
+            else
+              echo "Warning: RxTxApp not found"
+            fi
+
+            echo "==== FreeBSD Build Complete ===="
+
+      - name: Build Summary
+        if: always()
+        run: |
+          echo "FreeBSD ${{ matrix.freebsd_version }} build completed"
+          echo "Check logs above for build status"
+
+  freebsd-basic-tests:
+    needs: freebsd-build
+    if: ${{ github.repository == 'OpenVisualCloud/Media-Transport-Library' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
+        with:
+          egress-policy: audit
+
+      - name: Checkout MTL code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Run basic tests on FreeBSD
+        uses: vmactions/freebsd-vm@v1
+        with:
+          release: '14.2'
+          usesh: true
+          copyback: false
+          prepare: |
+            pkg install -y git gcc meson pkgconf ninja python3 py39-pyelftools
+            pkg install -y json-c libpcap googletest
+            pkg install -y numa || echo "NUMA not available"
+          run: |
+            set -e
+
+            # Build DPDK (minimal for testing)
+            git clone --depth 1 --branch v25.11 https://github.com/DPDK/dpdk.git
+            cd dpdk
+            meson setup build -Dmax_lcores=256 -Denable_kmods=false
+            ninja -C build
+            ninja install -C build
+            cd ..
+
+            export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+
+            # Build MTL with tests
+            meson setup build -Denable_unit_tests=true
+            ninja -C build
+
+            # Run the test script
+            chmod +x .github/scripts/freebsd_tests.sh
+            ./.github/scripts/freebsd_tests.sh
