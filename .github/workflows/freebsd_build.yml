@@ -56,6 +56,10 @@ jobs:
           usesh: true
           copyback: false
           prepare: |
+            # Override pkg repo to use plain HTTPS (pkg+:// SRV mirrors fail in CI)
+            mkdir -p /usr/local/etc/pkg/repos
+            echo 'FreeBSD: { url: "https://pkg.FreeBSD.org/${ABI}/latest", mirror_type: "http", signature_type: "fingerprints", fingerprints: "/usr/share/keys/pkg", enabled: yes }' > /usr/local/etc/pkg/repos/FreeBSD.conf
+            pkg update -f
             pkg install -y git gcc meson pkgconf ninja python3 py39-pyelftools
             pkg install -y json-c libpcap googletest
             pkg install -y numa || echo "NUMA not available, will use stubs"
@@ -134,6 +138,10 @@ jobs:
           usesh: true
           copyback: false
           prepare: |
+            # Override pkg repo to use plain HTTPS (pkg+:// SRV mirrors fail in CI)
+            mkdir -p /usr/local/etc/pkg/repos
+            echo 'FreeBSD: { url: "https://pkg.FreeBSD.org/${ABI}/latest", mirror_type: "http", signature_type: "fingerprints", fingerprints: "/usr/share/keys/pkg", enabled: yes }' > /usr/local/etc/pkg/repos/FreeBSD.conf
+            pkg update -f
             pkg install -y git gcc meson pkgconf ninja python3 py39-pyelftools
             pkg install -y json-c libpcap googletest
             pkg install -y numa || echo "NUMA not available"
