@@ -14,7 +14,6 @@ on:
 
 permissions:
   contents: read
-  actions: write
 
 jobs:
   changes:
@@ -36,6 +35,9 @@ jobs:
     if: ${{ github.repository == 'Fiooodooor/Media-Transport-Library' && (needs.changes.outputs.changed == 'true' || github.event_name == 'workflow_dispatch') }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    permissions:
+      contents: read
+      actions: write
     strategy:
       fail-fast: false
       matrix:
@@ -124,7 +126,7 @@ jobs:
             nm build/lib/libmtl.so.* | grep mtl_init || echo "mtl_init symbol check"
 
             # Check for RxTxApp binary
-            if [ -f tests/tools/RxTxApp/build/RxTxApp ]; then
+            if [ -f build/tests/tools/RxTxApp/RxTxApp ]; then
               echo "RxTxApp built successfully"
             else
               echo "Note: RxTxApp not present in this build"
@@ -150,6 +152,9 @@ jobs:
     if: ${{ github.repository == 'Fiooodooor/Media-Transport-Library' }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    permissions:
+      contents: read
+      actions: write
 
     steps:
       - name: Harden Runner
