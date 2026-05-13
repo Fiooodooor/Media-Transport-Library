@@ -469,11 +469,11 @@ struct st40_frame_info* st40p_tx_get_frame(st40p_tx_handle handle) {
   if (!framebuff && ctx->block_get) { /* wait here */
     mt_pthread_mutex_unlock(&ctx->lock);
     mt_pthread_mutex_lock(&ctx->block_wake_mutex);
-    if (!__atomic_load_n(&ctx->lc_destroying, __ATOMIC_ACQUIRE))
+    if (!atomic_load_explicit(&ctx->lc_destroying, memory_order_acquire))
       mt_pthread_cond_timedwait_ns(&ctx->block_wake_cond, &ctx->block_wake_mutex,
                                    ctx->block_timeout_ns);
     mt_pthread_mutex_unlock(&ctx->block_wake_mutex);
-    if (__atomic_load_n(&ctx->lc_destroying, __ATOMIC_ACQUIRE)) goto out;
+    if (atomic_load_explicit(&ctx->lc_destroying, memory_order_acquire)) goto out;
     /* get again */
     mt_pthread_mutex_lock(&ctx->lock);
     framebuff = tx_st40p_next_available(ctx, ST40P_TX_FRAME_FREE);

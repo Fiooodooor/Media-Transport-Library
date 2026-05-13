@@ -589,14 +589,14 @@ struct st40_frame_info* st40p_rx_get_frame(st40p_rx_handle handle) {
     mt_pthread_mutex_unlock(&ctx->lock);
     mt_pthread_mutex_lock(&ctx->block_wake_mutex);
     while (!ctx->block_wake_pending &&
-           !__atomic_load_n(&ctx->lc_destroying, __ATOMIC_ACQUIRE)) {
+           !atomic_load_explicit(&ctx->lc_destroying, memory_order_acquire)) {
       int _ret = mt_pthread_cond_timedwait_ns(
           &ctx->block_wake_cond, &ctx->block_wake_mutex, ctx->block_timeout_ns);
       if (_ret) break;
     }
     ctx->block_wake_pending = false;
     mt_pthread_mutex_unlock(&ctx->block_wake_mutex);
-    if (__atomic_load_n(&ctx->lc_destroying, __ATOMIC_ACQUIRE)) goto out;
+    if (atomic_load_explicit(&ctx->lc_destroying, memory_order_acquire)) goto out;
     /* get again */
     mt_pthread_mutex_lock(&ctx->lock);
     framebuff =

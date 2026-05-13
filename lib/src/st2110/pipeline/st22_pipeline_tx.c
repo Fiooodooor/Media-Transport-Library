@@ -156,6 +156,7 @@ static bool tx_st22p_if_frame_late(struct st22p_tx_ctx* ctx,
 
   if (ctx->ops.notify_frame_late) ctx->ops.notify_frame_late(ctx->ops.priv, 0);
   MT_USDT_ST22P_TX_FRAME_DROP(ctx->idx, framebuff->idx, rtp_ts);
+  MTL_MAY_UNUSED(rtp_ts);
 
   mt_pthread_mutex_lock(&ctx->lock);
   framebuff->stat = ST22P_TX_FRAME_FREE;
@@ -294,6 +295,7 @@ static int tx_st22p_encode_set_timeout(void* priv, uint64_t timedwait_ns) {
 static struct st22_encode_frame_meta* tx_st22p_encode_get_frame(void* priv) {
   struct st22p_tx_ctx* ctx = priv;
   int idx = ctx->idx;
+  MTL_MAY_UNUSED(idx);
   struct st22p_tx_frame* framebuff;
   struct st22_encode_frame_meta* ret_frame = NULL;
 
@@ -732,11 +734,11 @@ struct st_frame* st22p_tx_get_frame(st22p_tx_handle handle) {
   if (!framebuff && ctx->block_get) {
     mt_pthread_mutex_unlock(&ctx->lock);
     mt_pthread_mutex_lock(&ctx->block_wake_mutex);
-    if (!__atomic_load_n(&ctx->lc_destroying, __ATOMIC_ACQUIRE))
+    if (!atomic_load_explicit(&ctx->lc_destroying, memory_order_acquire))
       mt_pthread_cond_timedwait_ns(&ctx->block_wake_cond, &ctx->block_wake_mutex,
                                    ctx->block_timeout_ns);
     mt_pthread_mutex_unlock(&ctx->block_wake_mutex);
-    if (__atomic_load_n(&ctx->lc_destroying, __ATOMIC_ACQUIRE)) goto out;
+    if (atomic_load_explicit(&ctx->lc_destroying, memory_order_acquire)) goto out;
     /* get again */
     mt_pthread_mutex_lock(&ctx->lock);
     framebuff = tx_st22p_next_available(ctx, ST22P_TX_FRAME_FREE);

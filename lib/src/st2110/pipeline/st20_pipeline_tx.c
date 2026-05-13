@@ -146,6 +146,7 @@ static bool tx_st20p_if_frame_late(struct st20p_tx_ctx* ctx,
 
   if (ctx->ops.notify_frame_late) ctx->ops.notify_frame_late(ctx->ops.priv, 0);
   MT_USDT_ST20P_TX_FRAME_DROP(ctx->idx, framebuff->idx, rtp_ts);
+  MTL_MAY_UNUSED(rtp_ts);
 
   mt_pthread_mutex_lock(&ctx->lock);
 
@@ -727,11 +728,11 @@ struct st_frame* st20p_tx_get_frame(st20p_tx_handle handle) {
   if (!framebuff && ctx->block_get) { /* wait here */
     mt_pthread_mutex_unlock(&ctx->lock);
     mt_pthread_mutex_lock(&ctx->block_wake_mutex);
-    if (!__atomic_load_n(&ctx->lc_destroying, __ATOMIC_ACQUIRE))
+    if (!atomic_load_explicit(&ctx->lc_destroying, memory_order_acquire))
       mt_pthread_cond_timedwait_ns(&ctx->block_wake_cond, &ctx->block_wake_mutex,
                                    ctx->block_timeout_ns);
     mt_pthread_mutex_unlock(&ctx->block_wake_mutex);
-    if (__atomic_load_n(&ctx->lc_destroying, __ATOMIC_ACQUIRE)) goto out;
+    if (atomic_load_explicit(&ctx->lc_destroying, memory_order_acquire)) goto out;
     /* get again */
     mt_pthread_mutex_lock(&ctx->lock);
     framebuff = tx_st20p_next_available(ctx, ST20P_TX_FRAME_FREE);
