@@ -77,6 +77,26 @@ jobs:
             IGNORE_OSVERSION=yes pkg install -y py311-pyelftools
             IGNORE_OSVERSION=yes pkg install -y json-c libpcap googletest 
             IGNORE_OSVERSION=yes pkg install -y numa || echo "NUMA not available"
+            DPDK_PREFIX="$(pwd)/dpdk-install-${{ matrix.freebsd_version }}"
+            echo "==== Building DPDK ===="
+            git clone --depth 1 --branch v25.11 https://github.com/DPDK/dpdk.git
+            cd dpdk
+            # Apply MTL patches (skip Linux-specific)
+            echo "Applying DPDK patches..."
+            git config user.name "GitHub Actions"
+            git config user.email "github-actions@github.com"
+            git am ../patches/dpdk/25.11/0001-e810-set-max-ring-desc-to-max-allowed-by-hardware.patch || true
+            git am ../patches/dpdk/25.11/0003-ice-set-ICE_SCHED_DFLT_BURST_SIZE-to-2048.patch || true
+            git am ../patches/dpdk/25.11/0004-Change-to-enable-PTP.patch || true
+            git am ../patches/dpdk/25.11/0006-pcapng-add-user-timestamp-support.patch || true
+
+            # Skip FreeBSD kernel modules in CI VMs without /usr/src
+            sed -i '' 's/build_by_default: true/build_by_default: false/' kernel/freebsd/meson.build
+            # Build DPDK and install to workspace prefix for caching
+            meson setup build --prefix="$DPDK_PREFIX" -Dmax_lcores=256 -Dplatform=generic
+            ninja -C build
+            ninja install -C build
+            cd ..
           run: |
             set -e
 
@@ -85,32 +105,9 @@ jobs:
             uname -a
 
             DPDK_PREFIX="$(pwd)/dpdk-install-${{ matrix.freebsd_version }}"
-
-            if [ ! -f "$DPDK_PREFIX/libdata/pkgconfig/libdpdk.pc" ] && [ ! -f "$DPDK_PREFIX/lib/pkgconfig/libdpdk.pc" ]; then
-              echo "==== Building DPDK ===="
-              git clone --depth 1 --branch v25.11 https://github.com/DPDK/dpdk.git
-              cd dpdk
-
-              # Apply MTL patches (skip Linux-specific)
-              echo "Applying DPDK patches..."
-              git config user.name "GitHub Actions"
-              git config user.email "github-actions@github.com"
-              git am ../patches/dpdk/25.11/0001-e810-set-max-ring-desc-to-max-allowed-by-hardware.patch || true
-              git am ../patches/dpdk/25.11/0003-ice-set-ICE_SCHED_DFLT_BURST_SIZE-to-2048.patch || true
-              git am ../patches/dpdk/25.11/0004-Change-to-enable-PTP.patch || true
-              git am ../patches/dpdk/25.11/0006-pcapng-add-user-timestamp-support.patch || true
-
-              # Skip FreeBSD kernel modules in CI VMs without /usr/src
-              sed -i '' 's/build_by_default: true/build_by_default: false/' kernel/freebsd/meson.build
-
-              # Build DPDK and install to workspace prefix for caching
-              meson setup build --prefix="$DPDK_PREFIX" -Dmax_lcores=256 -Dplatform=generic
-              ninja -C build
-              ninja install -C build
-              cd ..
-            else
-              echo "==== DPDK cache hit — skipping build ===="
-            fi
+            cd dpdk
+            ninja install -C build
+            cd ..
 
             # Set PKG_CONFIG_PATH to the workspace DPDK install
             export PKG_CONFIG_PATH="$DPDK_PREFIX/libdata/pkgconfig:$DPDK_PREFIX/lib/pkgconfig"
