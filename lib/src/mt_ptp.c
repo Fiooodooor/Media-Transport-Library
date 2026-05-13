@@ -194,6 +194,7 @@ static void ptp_adj_system_clock_time(struct mt_ptp_impl* ptp, int64_t delta) {
   FileTimeToSystemTime(&ft, &st);
   ret = SetSystemTime(&st) ? 0 : -1;
 #else
+  MTL_MAY_UNUSED(delta);
   ret = 0;
 #endif
   dbg("%s(%d), delta %" PRId64 "\n", __func__, ptp->port, delta);
