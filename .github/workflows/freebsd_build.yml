@@ -57,7 +57,7 @@ jobs:
           copyback: false
           prepare: |
             pkg install -y git gcc meson pkgconf ninja python3 py39-pyelftools
-            pkg install -y json-c libpcap googletest
+            pkg install -y json-c libpcap googletest py-setuptools
             pkg install -y numa || echo "NUMA not available, will use stubs"
           run: |
             set -e
@@ -135,7 +135,7 @@ jobs:
           copyback: false
           prepare: |
             pkg install -y git gcc meson pkgconf ninja python3 py39-pyelftools
-            pkg install -y json-c libpcap googletest
+            pkg install -y json-c libpcap googletest py-setuptools
             pkg install -y numa || echo "NUMA not available"
           run: |
             set -e
