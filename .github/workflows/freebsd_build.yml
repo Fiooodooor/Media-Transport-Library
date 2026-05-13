@@ -56,9 +56,11 @@ jobs:
           usesh: true
           copyback: false
           prepare: |
-            pkg install -y git gcc meson pkgconf ninja python3 py39-pyelftools
+            pkg install -y git gcc meson pkgconf ninja python3 py39-pyelftools py39-pip
             pkg install -y json-c libpcap googletest py-setuptools
             pkg install -y numa || echo "NUMA not available, will use stubs"
+            portmaster --no-confirm -y libimagequant
+            python3 -m pip install --upgrade pip setuptools wheel
           run: |
             set -e
 
@@ -134,9 +136,11 @@ jobs:
           usesh: true
           copyback: false
           prepare: |
-            pkg install -y git gcc meson pkgconf ninja python3 py39-pyelftools
+            pkg install -y git gcc meson pkgconf ninja python3 py39-pyelftools py39-pip
             pkg install -y json-c libpcap googletest py-setuptools
             pkg install -y numa || echo "NUMA not available"
+            python3 -m pip install --upgrade pip setuptools wheel
+            portmaster --no-confirm -y libimagequant
           run: |
             set -e
 
