@@ -247,7 +247,7 @@ static int tx_socket_init_thread_data(struct mt_tx_socket_thread* t) {
     t->msg.msg_controllen = sizeof(t->msg_control);
     struct cmsghdr* cmsg;
     cmsg = CMSG_FIRSTHDR(&t->msg);
-    cmsg->cmsg_level = IPPROTO_UDP;
+    cmsg->cmsg_level = IPPROTO_UDP; /* SOL_UDP is Linux-specific; IPPROTO_UDP is portable */
     cmsg->cmsg_type = UDP_SEGMENT;
     cmsg->cmsg_len = CMSG_LEN(sizeof(uint16_t));
     uint16_t* val_p;

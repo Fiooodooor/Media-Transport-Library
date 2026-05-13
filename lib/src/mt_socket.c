@@ -236,6 +236,8 @@ int mt_socket_get_numa(const char* if_name) {
 
 #ifdef __FreeBSD__
 /* FreeBSD: SIOCGARP/struct arpreq are not available; use the sysctl routing table. */
+/* Round up sockaddr length to a uint32_t boundary, as required when
+ * walking the packed variable-length sockaddr array in BSD routing messages. */
 #define SOCKET_ARP_ROUNDUP(a) \
   ((a) > 0 ? (1 + (((a)-1) | (sizeof(uint32_t) - 1))) : sizeof(uint32_t))
 
