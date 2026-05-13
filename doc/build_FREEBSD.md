@@ -14,7 +14,7 @@ This guide provides instructions for building the Media Transport Library (MTL) 
 
 ```bash
 # Essential build tools
-pkg install -y git gcc meson pkgconf ninja python3
+pkg install -y git gcc meson pkgconf ninja python3 py311-pyelftools
 
 # Core libraries
 pkg install -y json-c libpcap
@@ -32,7 +32,7 @@ pkg install -y sdl2 sdl2_ttf
 pkg install -y llvm clang
 ```
 
-> Note: versioned `py*-pyelftools` packages are not consistently available across FreeBSD environments. Install `pyelftools` with `python3 -m pip install pyelftools` only if your local DPDK build explicitly requires it.
+> Note: `py311-pyelftools` is required by DPDK v25.11's Meson build system. The package name is tied to the Python 3.11 slot; if your system uses a different Python slot, adjust accordingly (e.g. `py312-pyelftools`).
 
 ### 1.2. Verify DTrace Support
 
