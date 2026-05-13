@@ -79,7 +79,7 @@ detect_pyelftools_pkg() {
   INSTALLED=$(pkg query '%n' 'py[0-9]*-pyelftools' 2>/dev/null || true)
   if [ -n "$INSTALLED" ]; then
     printf '%s\n' "$INSTALLED" \
-      | sed -n 's/^py\([0-9][0-9]*\)-pyelftools$/\1 &/p' \
+      | sed -En 's/^py([0-9]+)-pyelftools$/\1 &/p' \
       | sort -nr \
       | awk 'NR==1{print $2}'
     return
@@ -102,7 +102,7 @@ install_packages() {
   if [ "$MINIMAL" -eq 0 ]; then
     set -- numa googletest sdl2 sdl2_ttf llvm clang
     log "Installing optional packages from doc/build_FREEBSD.md: $*"
-    pkg install -y "$@" || true
+    pkg install -y "$@" || log "WARNING: Some optional packages failed to install"
   fi
 }
 
@@ -110,7 +110,8 @@ ensure_loader_conf_kv() {
   KEY="$1"
   VALUE="$2"
   LOADER_CONF="/boot/loader.conf"
-  ESCAPED_KEY=$(printf '%s' "$KEY" | sed 's/[][\\.^$*+?{}()|]/\\&/g')
+  # Escape regex metacharacters for sed/grep use.
+  ESCAPED_KEY=$(printf '%s' "$KEY" | sed 's/[][\\^$*+?{}()|.]/\\&/g')
   ESCAPED_VALUE=$(printf '%s' "$VALUE" | sed 's/[\/&]/\\&/g')
 
   if [ ! -f "$LOADER_CONF" ]; then
@@ -135,7 +136,8 @@ configure_hugepages() {
     log "contigmem kernel module already loaded"
   else
     log "Loading contigmem kernel module"
-    kldload contigmem || log "Could not load contigmem now; reboot may be required"
+    kldload contigmem || \
+      log "WARNING: Failed to load contigmem module; verify loader.conf entries and reboot if needed"
   fi
 }
 
