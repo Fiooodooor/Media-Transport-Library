@@ -63,7 +63,7 @@ jobs:
             printf 'FreeBSD-ports: { enabled: no }\n' > /usr/local/etc/pkg/repos/FreeBSD-ports.conf
             printf 'FreeBSD-ports-kmods: { enabled: no }\n' > /usr/local/etc/pkg/repos/FreeBSD-ports-kmods.conf
             IGNORE_OSVERSION=yes pkg update -f
-            IGNORE_OSVERSION=yes pkg install -y gcc meson pkgconf ninja python3
+            IGNORE_OSVERSION=yes pkg install -y git gcc meson pkgconf ninja python3
             IGNORE_OSVERSION=yes pkg install -y json-c libpcap googletest
             IGNORE_OSVERSION=yes pkg install -y numa || echo "NUMA not available, will use stubs"
           run: |
@@ -150,7 +150,7 @@ jobs:
             printf 'FreeBSD-ports: { enabled: no }\n' > /usr/local/etc/pkg/repos/FreeBSD-ports.conf
             printf 'FreeBSD-ports-kmods: { enabled: no }\n' > /usr/local/etc/pkg/repos/FreeBSD-ports-kmods.conf
             IGNORE_OSVERSION=yes pkg update -f
-            IGNORE_OSVERSION=yes pkg install -y gcc meson pkgconf ninja python3
+            IGNORE_OSVERSION=yes pkg install -y git gcc meson pkgconf ninja python3
             IGNORE_OSVERSION=yes pkg install -y json-c libpcap googletest
             IGNORE_OSVERSION=yes pkg install -y numa || echo "NUMA not available"
           run: |
