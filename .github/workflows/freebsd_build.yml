@@ -86,7 +86,7 @@ jobs:
 
             DPDK_PREFIX="$(pwd)/dpdk-install-${{ matrix.freebsd_version }}"
 
-            if [ ! -f "$DPDK_PREFIX/lib/pkgconfig/libdpdk.pc" ]; then
+            if [ ! -f "$DPDK_PREFIX/libdata/pkgconfig/libdpdk.pc" ] && [ ! -f "$DPDK_PREFIX/lib/pkgconfig/libdpdk.pc" ]; then
               echo "==== Building DPDK ===="
               git clone --depth 1 --branch v25.11 https://github.com/DPDK/dpdk.git
               cd dpdk
@@ -113,7 +113,7 @@ jobs:
             fi
 
             # Set PKG_CONFIG_PATH to the workspace DPDK install
-            export PKG_CONFIG_PATH="$DPDK_PREFIX/lib/pkgconfig"
+            export PKG_CONFIG_PATH="$DPDK_PREFIX/libdata/pkgconfig:$DPDK_PREFIX/lib/pkgconfig"
 
             # Build MTL (inline meson/ninja; build.sh uses bash builtins unavailable in FreeBSD sh)
             echo "==== Building MTL ===="
@@ -195,7 +195,7 @@ jobs:
 
             DPDK_PREFIX="$(pwd)/dpdk-install-14.2"
 
-            if [ ! -f "$DPDK_PREFIX/lib/pkgconfig/libdpdk.pc" ]; then
+            if [ ! -f "$DPDK_PREFIX/libdata/pkgconfig/libdpdk.pc" ] && [ ! -f "$DPDK_PREFIX/lib/pkgconfig/libdpdk.pc" ]; then
               echo "==== Building DPDK ===="
               git clone --depth 1 --branch v25.11 https://github.com/DPDK/dpdk.git
               cd dpdk
@@ -209,7 +209,7 @@ jobs:
               echo "==== DPDK cache hit — skipping build ===="
             fi
 
-            export PKG_CONFIG_PATH="$DPDK_PREFIX/lib/pkgconfig"
+            export PKG_CONFIG_PATH="$DPDK_PREFIX/libdata/pkgconfig:$DPDK_PREFIX/lib/pkgconfig"
 
             # Build MTL with tests
             meson setup build -Denable_unit_tests=true
