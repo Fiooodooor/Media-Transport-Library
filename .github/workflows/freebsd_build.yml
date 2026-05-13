@@ -52,7 +52,7 @@ jobs:
 
       - name: Restore DPDK cache
         id: dpdk-cache
-        uses: actions/cache/restore@5a3ec84abb37c4dc6edca4b37af6fe7f07c94f8c # v4.2.3
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: dpdk-install-${{ matrix.freebsd_version }}
           key: dpdk-v25.11-freebsd-${{ matrix.freebsd_version }}-${{ hashFiles('patches/dpdk/**') }}
@@ -134,7 +134,7 @@ jobs:
 
       - name: Save DPDK cache
         if: steps.dpdk-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@5a3ec84abb37c4dc6edca4b37af6fe7f07c94f8c # v4.2.3
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: dpdk-install-${{ matrix.freebsd_version }}
           key: dpdk-v25.11-freebsd-${{ matrix.freebsd_version }}-${{ hashFiles('patches/dpdk/**') }}
@@ -162,7 +162,7 @@ jobs:
 
       - name: Restore DPDK cache
         id: dpdk-cache
-        uses: actions/cache/restore@5a3ec84abb37c4dc6edca4b37af6fe7f07c94f8c # v4.2.3
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: dpdk-install-14.2
           key: dpdk-v25.11-freebsd-14.2-${{ hashFiles('patches/dpdk/**') }}
@@ -216,7 +216,7 @@ jobs:
 
       - name: Save DPDK cache
         if: steps.dpdk-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@5a3ec84abb37c4dc6edca4b37af6fe7f07c94f8c # v4.2.3
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: dpdk-install-14.2
           key: dpdk-v25.11-freebsd-14.2-${{ hashFiles('patches/dpdk/**') }}
