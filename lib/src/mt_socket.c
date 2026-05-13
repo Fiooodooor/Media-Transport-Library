@@ -239,7 +239,7 @@ int mt_socket_get_numa(const char* if_name) {
 /* Round up sockaddr length to a uint32_t boundary, as required when
  * walking the packed variable-length sockaddr array in BSD routing messages. */
 #define SOCKET_ARP_ROUNDUP(a) \
-  ((a) > 0 ? (1 + (((a)-1) | (sizeof(uint32_t) - 1))) : sizeof(uint32_t))
+  ((a) > 0 ? (1 + (((a) - 1) | (sizeof(uint32_t) - 1))) : sizeof(uint32_t))
 
 static int socket_arp_get(int sfd, in_addr_t ip, struct rte_ether_addr* ea,
                           const char* if_name) {
