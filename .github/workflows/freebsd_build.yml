@@ -120,7 +120,7 @@ jobs:
             # Verify build
             echo "==== Verifying build ===="
             ls -lh build/lib/libmtl.so*
-            nm build/lib/libmtl.so.* | grep mtl_init || echo "mtl_init symbol check"
+            nm build/lib/libmtl.so 2>/dev/null | grep mtl_init || echo "mtl_init symbol check"
 
             # Check for RxTxApp binary
             if [ -f build/tests/tools/RxTxApp/RxTxApp ]; then
