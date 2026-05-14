@@ -5,6 +5,12 @@
 
 set -e
 
+# If local DPDK install is set or just exists then use that
+_local_dpdk_bin="${MTL_INSTALL_PREFIX:-$(dirname "$(realpath "${BASH_SOURCE[0]}")")/../.local_install}/dpdk/bin"
+if [ -d "$_local_dpdk_bin" ]; then
+	PATH="${_local_dpdk_bin}:${PATH}"
+fi
+
 if [ $# -lt 2 ]; then
 	echo "Usage: "
 	echo "    $0 <command> <bb:dd:ff.x> [args]"

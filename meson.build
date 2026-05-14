@@ -82,5 +82,6 @@ pkg.generate(
   version : meson.project_version(),
   libraries : mtl_lib,
   filebase : meson.project_name(),
+  subdirs : ['.', meson.project_name()],
   description : 'Media Transport Library'
 )
