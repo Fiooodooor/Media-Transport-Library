@@ -286,6 +286,7 @@ static int rx_st30p_usdt_dump_frame(struct st30p_rx_ctx* ctx, struct st30_frame*
 struct st30_frame* st30p_rx_get_frame(st30p_rx_handle handle) {
   struct st30p_rx_ctx* ctx = handle;
   int idx = ctx->idx;
+  MTL_MAY_UNUSED(idx);
   struct st30p_rx_frame* framebuff;
   struct st30_frame* frame = NULL;
 

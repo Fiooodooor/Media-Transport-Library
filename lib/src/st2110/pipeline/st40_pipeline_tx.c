@@ -84,6 +84,7 @@ static bool tx_st40p_if_frame_late(struct st40p_tx_ctx* ctx,
                                    struct st40p_tx_frame* framebuff) {
   struct st40_frame_info* frame_info = &framebuff->frame_info;
   uint32_t rtp_ts;
+  MTL_MAY_UNUSED(rtp_ts);
 
   /* prerequisite: both flags must be set */
   if (!(ctx->ops.flags & ST40P_TX_FLAG_DROP_WHEN_LATE) ||
@@ -457,6 +458,7 @@ struct st40_frame_info* st40p_tx_get_frame(st40p_tx_handle handle) {
   struct st40p_tx_frame* framebuff;
   struct st40_frame_info* frame_info = NULL;
   int idx = ctx->idx;
+  MTL_MAY_UNUSED(idx);
 
   MT_HANDLE_GUARD(ctx, MT_ST40_HANDLE_PIPELINE_TX, NULL);
 

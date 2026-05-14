@@ -464,6 +464,7 @@ static void tx_st30p_framebuffs_flush(struct st30p_tx_ctx* ctx) {
 struct st30_frame* st30p_tx_get_frame(st30p_tx_handle handle) {
   struct st30p_tx_ctx* ctx = handle;
   int idx = ctx->idx;
+  MTL_MAY_UNUSED(idx);
   struct st30p_tx_frame* framebuff;
   struct st30_frame* frame = NULL;
 
