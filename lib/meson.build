@@ -58,8 +58,8 @@ endif
 # usdt check
 mtl_has_usdt = false
 
-# usdt not available in windows
-if not is_windows and get_option('enable_usdt') == true
+# usdt not available in windows or freebsd (FreeBSD has kernel DTrace, not Linux systemtap-sdt-dev dtrace)
+if not is_windows and not is_freebsd and get_option('enable_usdt') == true
   dtrace = find_program('dtrace', required: false)
   if cc.has_header('sys/sdt.h') and dtrace.found()
     mtl_has_usdt = true

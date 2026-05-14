@@ -143,8 +143,8 @@ static uint16_t tx_socket_send_mbuf_gso(struct mt_tx_socket_thread* t,
 
         gso_cnt = 0;
       }
-      write = sendto(fd, payload, payload_len, MSG_DONTWAIT, &t->send_addr,
-                     sizeof(t->send_addr));
+      write = sendto(fd, payload, payload_len, MSG_DONTWAIT,
+                     (const struct sockaddr*)&t->send_addr, sizeof(t->send_addr));
       if (write != payload_len) {
         dbg("%s(%d,%d), sendto fail, len %u send %" PRId64 "\n", __func__, port, fd,
             payload_len, write);
@@ -247,7 +247,8 @@ static int tx_socket_init_thread_data(struct mt_tx_socket_thread* t) {
     t->msg.msg_controllen = sizeof(t->msg_control);
     struct cmsghdr* cmsg;
     cmsg = CMSG_FIRSTHDR(&t->msg);
-    cmsg->cmsg_level = SOL_UDP;
+    cmsg->cmsg_level =
+        IPPROTO_UDP; /* SOL_UDP is Linux-specific; IPPROTO_UDP is portable */
     cmsg->cmsg_type = UDP_SEGMENT;
     cmsg->cmsg_len = CMSG_LEN(sizeof(uint16_t));
     uint16_t* val_p;
@@ -535,8 +536,8 @@ static struct rte_mbuf* rx_socket_recv_mbuf(struct mt_rx_socket_thread* t) {
   socklen_t addr_in_len = sizeof(addr_in);
 
   t->stat_rx_try++;
-  ssize_t len =
-      recvfrom(fd, payload, entry->pool_element_sz, MSG_DONTWAIT, &addr_in, &addr_in_len);
+  ssize_t len = recvfrom(fd, payload, entry->pool_element_sz, MSG_DONTWAIT,
+                         (struct sockaddr*)&addr_in, &addr_in_len);
   if (len <= 0) {
     return NULL;
   }

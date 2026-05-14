@@ -31,11 +31,7 @@ endif
 
 # Add FreeBSD NUMA stubs if libnuma not available
 if is_freebsd
-  libnuma_found = false
-  if libnuma_dep != []
-    libnuma_found = libnuma_dep.found()
-  endif
-  if not libnuma_found
+  if not libnuma_dep.found()
     sources += files('mt_numa_freebsd.c')
   endif
 endif

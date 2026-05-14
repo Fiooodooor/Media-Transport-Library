@@ -196,7 +196,7 @@ sudo ninja install -C build
 ls build/lib/libmtl.so*
 
 # Check symbols
-nm build/lib/libmtl.so.* | grep mtl_init
+nm build/lib/libmtl.so 2>/dev/null | grep mtl_init
 
 # Expected: Symbol for mtl_init should be present
 ```
