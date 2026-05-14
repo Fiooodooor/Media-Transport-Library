@@ -572,6 +572,7 @@ static int rx_st22p_usdt_dump_frame(struct st22p_rx_ctx* ctx, struct st_frame* f
 struct st_frame* st22p_rx_get_frame(st22p_rx_handle handle) {
   struct st22p_rx_ctx* ctx = handle;
   int idx = ctx->idx;
+  MTL_MAY_UNUSED(idx);
   struct st22p_rx_frame* framebuff;
   struct st_frame* frame = NULL;
 
