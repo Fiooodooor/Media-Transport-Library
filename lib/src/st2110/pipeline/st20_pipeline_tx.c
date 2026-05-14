@@ -98,6 +98,7 @@ static bool tx_st20p_if_frame_late(struct st20p_tx_ctx* ctx,
                                    struct st20p_tx_frame* framebuff) {
   struct st_frame* frame = tx_st20p_user_frame(ctx, framebuff);
   uint32_t rtp_ts; /* captured under lock for use in USDT after unlock */
+  MTL_MAY_UNUSED(rtp_ts);
   bool user_done = ctx->ops.flags & ST20P_TX_FLAG_EXT_FRAME_MANUAL_RELEASE;
   /* Park in IN_USER only when user_done flag is set and derive path */
   bool need_in_user = user_done && !framebuff->frame_done_cb_called;
@@ -146,7 +147,6 @@ static bool tx_st20p_if_frame_late(struct st20p_tx_ctx* ctx,
 
   if (ctx->ops.notify_frame_late) ctx->ops.notify_frame_late(ctx->ops.priv, 0);
   MT_USDT_ST20P_TX_FRAME_DROP(ctx->idx, framebuff->idx, rtp_ts);
-  MTL_MAY_UNUSED(rtp_ts);
 
   mt_pthread_mutex_lock(&ctx->lock);
 

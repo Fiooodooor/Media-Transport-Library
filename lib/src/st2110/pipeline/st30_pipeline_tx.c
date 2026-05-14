@@ -81,6 +81,7 @@ static bool tx_st30p_if_frame_late(struct st30p_tx_ctx* ctx,
                                    struct st30p_tx_frame* framebuff) {
   struct st30_frame* frame = &framebuff->frame;
   uint32_t rtp_ts;
+  MTL_MAY_UNUSED(rtp_ts);
 
   /* prerequisite: both flags must be set */
   if (!(ctx->ops.flags & ST30P_TX_FLAG_DROP_WHEN_LATE) ||
@@ -122,7 +123,6 @@ static bool tx_st30p_if_frame_late(struct st30p_tx_ctx* ctx,
 
   if (ctx->ops.notify_frame_late) ctx->ops.notify_frame_late(ctx->ops.priv, 0);
   MT_USDT_ST30P_TX_FRAME_DROP(ctx->idx, framebuff->idx, rtp_ts);
-  MTL_MAY_UNUSED(rtp_ts);
 
   mt_pthread_mutex_lock(&ctx->lock);
   framebuff->stat = ST30P_TX_FRAME_FREE;
